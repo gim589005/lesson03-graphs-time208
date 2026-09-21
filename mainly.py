@@ -94,4 +94,32 @@ st.plotly_chart(fig3, width="stretch")
 st.caption("빨간 점은 10위권 관객 합계가 가장 컸던 3일입니다.")
 st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)")
 
-# ── 앞으로 그래프 4, 5가 이 아래에 추가됩니다 ──────────
+# ── 그래프 4. 관객 합계 TOP 10 영화 ──────────────────────────
+st.divider()
+st.header("4. 관객 합계 TOP 10 영화")
+
+# 영화별로 일관객을 모두 더하고, 10위권에 든 날수도 함께 셉니다.
+summary = df.groupby("영화명", as_index=False).agg(
+    관객합계=("일관객", "sum"),
+    순위권일수=("날짜", "nunique"),
+)
+top10 = summary.nlargest(10, "관객합계")  # 관객 많은 순서
+
+fig4 = px.bar(
+    top10,
+    x="관객합계",
+    y="영화명",
+    orientation="h",
+    custom_data=["순위권일수"],
+)
+fig4.update_traces(
+    hovertemplate="%{y}<br>관객 합계 %{x:,}명<br>10위권에 든 날 %{customdata[0]}일<extra></extra>"
+)
+# 가로 막대는 기본이 아래부터 쌓이므로, 뒤집어서 관객이 많은 영화가 위에 오게 합니다.
+fig4.update_yaxes(autorange="reversed", title_text="")
+fig4.update_layout(xaxis_title="일관객 합계(명)", xaxis_tickformat=",")
+st.plotly_chart(fig4, width="stretch")
+
+st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)")
+
+# ── 앞으로 그래프 5가 이 아래에 추가됩니다 ──────────
