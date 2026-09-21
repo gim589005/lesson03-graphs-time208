@@ -60,4 +60,38 @@ st.plotly_chart(fig2, width="stretch")
 st.caption("범례의 영화 이름을 한 번 누르면 그 선이 꺼지고, 두 번 누르면 그 영화만 보여요.")
 st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)")
 
-# ── 앞으로 그래프 3, 4, 5가 이 아래에 추가됩니다 ──────────
+# ── 그래프 3. 하루 10위권 관객 합계 ──────────────────────────
+st.divider()
+st.header("3. 하루 10위권 관객 합계")
+
+# 날짜별로 그날 10위권 일관객을 모두 더합니다.
+daily = df.groupby("날짜", as_index=False)["일관객"].sum().sort_values("날짜")
+
+fig3 = px.area(daily, x="날짜", y="일관객")
+fig3.update_traces(
+    hovertemplate="날짜 %{x|%Y-%m-%d}<br>10위권 합계 %{y:,}명<extra></extra>"
+)
+
+# 합계가 가장 컸던 3일을 점과 날짜로 표시합니다.
+# 붙어 있는 날짜끼리 글자가 겹치지 않게, 날짜 순서대로 글자 위치를 나눕니다.
+top3 = daily.nlargest(3, "일관객").sort_values("날짜")
+fig3.add_scatter(
+    x=top3["날짜"],
+    y=top3["일관객"],
+    mode="markers+text",
+    text=top3["날짜"].dt.strftime("%Y-%m-%d"),
+    textposition=["top left", "top center", "top right"],
+    marker=dict(size=11, color="red"),
+    cliponaxis=False,
+    showlegend=False,
+    hovertemplate="날짜 %{x|%Y-%m-%d}<br>10위권 합계 %{y:,}명<extra></extra>",
+)
+fig3.update_layout(yaxis_title="10위권 일관객 합계(명)", yaxis_tickformat=",")
+# 위쪽 글자가 잘리지 않도록 y축 위쪽에 여유를 둡니다.
+fig3.update_yaxes(range=[0, daily["일관객"].max() * 1.15])
+st.plotly_chart(fig3, width="stretch")
+
+st.caption("빨간 점은 10위권 관객 합계가 가장 컸던 3일입니다.")
+st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)")
+
+# ── 앞으로 그래프 4, 5가 이 아래에 추가됩니다 ──────────
