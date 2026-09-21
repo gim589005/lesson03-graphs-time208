@@ -122,4 +122,37 @@ st.plotly_chart(fig4, width="stretch")
 
 st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)")
 
-# ── 앞으로 그래프 5가 이 아래에 추가됩니다 ──────────
+# ── 그래프 5. 월 × 요일별 관객 합계 ──────────────────────────
+st.divider()
+st.header("5. 월 × 요일별 관객 합계")
+
+# 날짜에서 월과 요일을 뽑습니다. (요일: 월요일=0 ... 일요일=6)
+heat = df.assign(월=df["날짜"].dt.month, 요일=df["날짜"].dt.dayofweek)
+
+# 요일(행) × 월(열) 표를 만들어 일관객을 더합니다.
+pivot = heat.pivot_table(
+    index="요일", columns="월", values="일관객", aggfunc="sum", fill_value=0
+).reindex(range(7), fill_value=0)  # 월~일 일곱 줄이 모두 있도록
+pivot.index = ["월", "화", "수", "목", "금", "토", "일"]  # 월요일부터 일요일 순서
+pivot.columns = [f"{m}월" for m in pivot.columns]
+
+# 색이 진할수록 관객이 많습니다.
+fig5 = px.imshow(
+    pivot,
+    color_continuous_scale="Blues",
+    aspect="auto",
+    labels=dict(color="일관객 합계(명)"),
+)
+fig5.update_traces(
+    hovertemplate="%{x} %{y}요일<br>관객 합계 %{z:,}명<extra></extra>"
+)
+fig5.update_layout(
+    xaxis_title="월",
+    yaxis_title="요일",
+    coloraxis_colorbar_tickformat=",",
+)
+st.plotly_chart(fig5, width="stretch")
+
+st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)")
+
+# ── 앞으로 그래프가 더 생기면 이 아래에 추가합니다 ──────────
